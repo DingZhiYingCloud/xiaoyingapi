@@ -146,18 +146,12 @@ def round2():
     r = _response(Client().post('/api/ddddocr/ocr'))
     _check('全链 inherit 服务无签名被拦截(20011)', r.get('code') == 20011, f'code={r.get("code")}')
 
-    # 2.3 显式 open 的分类可匿名访问（IndexNow 协议回调类服务保持开放）
-    _set_auth('/api/bing/indexnow/', 'open')
-    r = _response(Client().get('/api/bing/indexnow/generate-key'))
-    _check('显式 open 节点匿名访问放行', r.get('code') != 20011, f'code={r.get("code")}')
-    _set_auth('/api/bing/indexnow/', 'inherit')
-
-    # 2.4 captcha_auth/aliyun 整体显式 open（开放集成：config/verify 均免签）
+    # 2.3 captcha_auth/aliyun 整体显式 open（开放集成：config/verify 均免签）
     r = _response(Client().get('/api/captcha_auth/aliyun/config'))
     _check('captcha open 节点-config 匿名放行', r.get('code') == 10000, f'code={r.get("code")}')
     _check('放行后正常返回 app_id', bool((r.get('data') or {}).get('app_id')))
 
-    # 2.5 PUBLIC_GET_PATHS 公开 GET 豁免（user_center/users/methods 供客户端探测方式）
+    # 2.4 PUBLIC_GET_PATHS 公开 GET 豁免（user_center/users/methods 供客户端探测方式）
     r = _response(Client().get('/api/user_center/users/methods'))
     _check('公开 GET 豁免-匿名放行', r.get('code') == 10000, f'code={r.get("code")}')
 

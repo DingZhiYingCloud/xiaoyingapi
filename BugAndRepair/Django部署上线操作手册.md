@@ -373,5 +373,5 @@ curl -s -o /dev/null -w "%{http_code}\n" -H "Host: {DEPLOY_DOMAIN}" http://127.0
    定时备份 `db.sqlite3` 时应先 `stop` 或用 sqlite `.backup`，对备份文件做加密（如 `openssl enc -aes-256-cbc`）后再异地存放。
 6. **后台入口收敛**：建议后台 `/admin/`（或自定义改名路径）仅在 Nginx 层做 IP 白名单或加访问密码，禁止公网裸奔；后台管理页请走 HTTPS。
 7. **存量凭据回填**：若项目含 S-06 存储改造，上线后执行一次 `python manage.py security_backfill`（一次性，带迁移标记）。
-8. **A-01 fail-closed（重大行为变更）**：分类树默认改为「需要认证」——此前免签开放的能力型服务（upload/ddddocr/bing/email/ai/ProxyIp/music/dlt/dlwz/seo/spider_verification 等）现在必须携带 app_id/timestamp/nonce/sign 签名才能调用；仅显式 `open` 分类（如 bing/indexnow）与公开 GET 路径（如 captcha config）可匿名。对接方需接入签名后再切流量。新部署执行 `rebuild_category_tree` 后，需在后台核对各分类认证模式是否符合预期。
+8. **A-01 fail-closed（重大行为变更）**：分类树默认改为「需要认证」——此前免签开放的能力型服务（upload/ddddocr/email/ai/ProxyIp/music/dlt/dlwz/seo/spider_verification 等）现在必须携带 app_id/timestamp/nonce/sign 签名才能调用；仅显式 `open` 分类（如 captcha_auth/aliyun）与公开 GET 路径（如 captcha config）可匿名。对接方需接入签名后再切流量。新部署执行 `rebuild_category_tree` 后，需在后台核对各分类认证模式是否符合预期。（Bing 服务及 `/api/bing/` 分类节点已整体下线删除，不在列表内。）
 9. **A-05 日志与迁移**：`logs/` 目录由应用自动创建（相对项目根），确保运行用户（www）对其可写；上线错误排查优先看 `logs/error.log`（带 request_id，可到 `logs/app.log` 按 request_id 关联整条请求链路）。迁移文件已随代码入库，部署只跑 `migrate`。
